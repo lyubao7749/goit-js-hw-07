@@ -7,10 +7,6 @@ const refs = {
     galleryContainer: document.querySelector(".gallery"),
  };
 
- const modalBox = basicLightbox.create(
-	`<div class="modal"><img src="" width="800" height="600"></div>`
-);
-
  const imagesTemplate = ({ preview, original, description }) => {
     return `<div class="gallery__item">
     <a
@@ -32,20 +28,38 @@ refs.galleryContainer.insertAdjacentHTML("afterbegin", addImage);
 
 refs.galleryContainer.addEventListener("click", onImageClick);
 
+const instance = basicLightbox.create(`
+<img src=" " width="800" height="600">
+`, {
+onShow: (instance) => {
+  window.addEventListener('keydown', onEscapePress);
+ // console.log("addEventListener");
+},
+
+onClose: (instance) => {
+  window.removeEventListener('keydown', onEscapePress);
+ // console.log("removeEventListener");
+ }
+});
+
 function onImageClick (event) {
   event.preventDefault();
-  const ImageSource = modalBox.element().querySelector("img");
+  if (event.target.nodeName !== 'IMG') {
+    return;
+  };
+
+  const ImageSource = instance.element().querySelector("img");
   ImageSource.src = event.target.dataset.source;
-  modalBox.show();
-  window.addEventListener("keydown", onCloseModal);
+  instance.show();
 }
 
-function onCloseModal(event) {
- 	if (!event.code.toLowerCase() === "escape") return;
-
-	window.removeEventListener("keydown", onCloseModal);
-	modalBox.close();
-}
+function onEscapePress(event) {
+  const ESC_KEY_CODE = 'Escape';
+  const isEscKey = event.code === ESC_KEY_CODE;
+  if (isEscKey) {
+    instance.close();
+  }
+ }
 
 
 
